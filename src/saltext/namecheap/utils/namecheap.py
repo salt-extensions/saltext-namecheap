@@ -9,6 +9,7 @@
    the namecheap API:
 
         * ``requests``
+
         .. code-block:: bash
 
             pip install requests

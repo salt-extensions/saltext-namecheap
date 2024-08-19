@@ -16,6 +16,7 @@ Salt Extension for interacting with Namecheap
   :hidden:
 
   ref/modules/index
+  ref/utils/index
 
 .. toctree::
   :maxdepth: 2
