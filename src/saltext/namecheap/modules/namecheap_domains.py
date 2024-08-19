@@ -31,24 +31,18 @@ import logging
 from salt.exceptions import CommandExecutionError
 from salt.exceptions import SaltInvocationError
 
-CAN_USE_NAMECHEAP = True
-
-try:
-    from saltext.namecheap.utils import namecheap
-except ImportError:
-    CAN_USE_NAMECHEAP = False
-
+from saltext.namecheap.utils import namecheap
 
 log = logging.getLogger(__name__)
+
+__virtualname__ = "namecheap_domains"
 
 
 def __virtual__():
     """
     Check to make sure requests and xml are installed and requests
     """
-    if CAN_USE_NAMECHEAP:
-        return "namecheap_domains"
-    return False
+    return __virtualname__
 
 
 def reactivate(domain_name):

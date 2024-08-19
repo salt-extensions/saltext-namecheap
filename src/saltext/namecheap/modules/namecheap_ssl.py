@@ -32,24 +32,18 @@ import salt.utils.files
 import salt.utils.stringutils
 from salt.exceptions import SaltInvocationError
 
-try:
-    from saltext.namecheap.utils import namecheap
-
-    CAN_USE_NAMECHEAP = True
-except ImportError:
-    CAN_USE_NAMECHEAP = False
-
+from saltext.namecheap.utils import namecheap
 
 log = logging.getLogger(__name__)
+
+__virtualname__ = "namecheap_ssl"
 
 
 def __virtual__():
     """
     Check to make sure requests and xml are installed and requests
     """
-    if CAN_USE_NAMECHEAP:
-        return "namecheap_ssl"
-    return False
+    return __virtualname__
 
 
 def reissue(

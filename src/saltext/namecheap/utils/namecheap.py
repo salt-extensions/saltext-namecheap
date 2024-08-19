@@ -18,14 +18,8 @@
 import logging
 import xml.dom.minidom
 
+import requests
 from salt.exceptions import CommandExecutionError
-
-try:
-    import requests
-
-    HAS_REQUESTS = True
-except ImportError:
-    HAS_REQUESTS = False
 
 # Get logging started
 log = logging.getLogger(__name__)

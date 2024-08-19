@@ -26,13 +26,7 @@ file, or in the Pillar data.
     #namecheap.url: https://api.sandbox.namecheap.xml.response
 """
 
-CAN_USE_NAMECHEAP = True
-
-
-try:
-    from saltext.namecheap.utils import namecheap
-except ImportError:
-    CAN_USE_NAMECHEAP = False
+from saltext.namecheap.utils import namecheap
 
 __virtualname__ = "namecheap_domains_dns"
 
@@ -41,9 +35,7 @@ def __virtual__():
     """
     Check to make sure requests and xml are installed and requests
     """
-    if CAN_USE_NAMECHEAP:
-        return "namecheap_domains_dns"
-    return False
+    return __virtualname__
 
 
 def get_hosts(sld, tld):
