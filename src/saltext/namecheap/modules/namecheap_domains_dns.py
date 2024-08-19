@@ -26,12 +26,11 @@ file, or in the Pillar data.
     #namecheap.url: https://api.sandbox.namecheap.xml.response
 """
 
-
 CAN_USE_NAMECHEAP = True
 
 
 try:
-    import salt.utils.namecheap
+    from saltext.namecheap.utils import namecheap
 except ImportError:
     CAN_USE_NAMECHEAP = False
 
@@ -65,19 +64,17 @@ def get_hosts(sld, tld):
 
         salt 'my-minion' namecheap_domains_dns.get_hosts sld tld
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.dns.gethosts")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.dns.gethosts")
     opts["TLD"] = tld
     opts["SLD"] = sld
 
-    response_xml = salt.utils.namecheap.get_request(opts)
+    response_xml = namecheap.get_request(url, opts)
     if response_xml is None:
         return {}
 
-    domaindnsgethostsresult = response_xml.getElementsByTagName(
-        "DomainDNSGetHostsResult"
-    )[0]
+    domaindnsgethostsresult = response_xml.getElementsByTagName("DomainDNSGetHostsResult")[0]
 
-    return salt.utils.namecheap.xml_to_dict(domaindnsgethostsresult)
+    return namecheap.xml_to_dict(domaindnsgethostsresult)
 
 
 def get_list(sld, tld):
@@ -98,19 +95,17 @@ def get_list(sld, tld):
 
         salt 'my-minion' namecheap_domains_dns.get_list sld tld
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.dns.getlist")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.dns.getlist")
     opts["TLD"] = tld
     opts["SLD"] = sld
 
-    response_xml = salt.utils.namecheap.get_request(opts)
+    response_xml = namecheap.get_request(url, opts)
     if response_xml is None:
         return {}
 
-    domaindnsgetlistresult = response_xml.getElementsByTagName(
-        "DomainDNSGetListResult"
-    )[0]
+    domaindnsgetlistresult = response_xml.getElementsByTagName("DomainDNSGetListResult")[0]
 
-    return salt.utils.namecheap.xml_to_dict(domaindnsgetlistresult)
+    return namecheap.xml_to_dict(domaindnsgetlistresult)
 
 
 def set_hosts(sld, tld, hosts):
@@ -144,7 +139,7 @@ def set_hosts(sld, tld, hosts):
 
         salt 'my-minion' namecheap_domains_dns.set_hosts sld tld hosts
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.dns.setHosts")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.dns.setHosts")
     opts["SLD"] = sld
     opts["TLD"] = tld
     i = 1
@@ -160,12 +155,12 @@ def set_hosts(sld, tld, hosts):
             opts["EmailType"] = hostrecord["emailtype"]
         i += 1
 
-    response_xml = salt.utils.namecheap.post_request(opts)
+    response_xml = namecheap.post_request(url, opts)
     if response_xml is None:
         return False
 
     dnsresult = response_xml.getElementsByTagName("DomainDNSSetHostsResult")[0]
-    return salt.utils.namecheap.string_to_value(dnsresult.getAttribute("IsSuccess"))
+    return namecheap.string_to_value(dnsresult.getAttribute("IsSuccess"))
 
 
 def set_custom(sld, tld, nameservers):
@@ -189,16 +184,16 @@ def set_custom(sld, tld, nameservers):
 
         salt 'my-minion' namecheap_domains_dns.set_custom sld tld nameserver
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.dns.setCustom")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.dns.setCustom")
     opts["SLD"] = sld
     opts["TLD"] = tld
     opts["Nameservers"] = ",".join(nameservers)
-    response_xml = salt.utils.namecheap.post_request(opts)
+    response_xml = namecheap.post_request(url, opts)
     if response_xml is None:
         return False
 
     dnsresult = response_xml.getElementsByTagName("DomainDNSSetCustomResult")[0]
-    return salt.utils.namecheap.string_to_value(dnsresult.getAttribute("Update"))
+    return namecheap.string_to_value(dnsresult.getAttribute("Update"))
 
 
 def set_default(sld, tld):
@@ -222,12 +217,12 @@ def set_default(sld, tld):
 
         salt 'my-minion' namecheap_domains_dns.set_default sld tld
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.dns.setDefault")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.dns.setDefault")
     opts["SLD"] = sld
     opts["TLD"] = tld
-    response_xml = salt.utils.namecheap.post_request(opts)
+    response_xml = namecheap.post_request(url, opts)
     if response_xml is None:
         return False
 
     dnsresult = response_xml.getElementsByTagName("DomainDNSSetDefaultResult")[0]
-    return salt.utils.namecheap.string_to_value(dnsresult.getAttribute("Updated"))
+    return namecheap.string_to_value(dnsresult.getAttribute("Updated"))

@@ -30,7 +30,7 @@ CAN_USE_NAMECHEAP = True
 
 
 try:
-    import salt.utils.namecheap
+    from saltext.namecheap.utils import namecheap
 except ImportError:
     CAN_USE_NAMECHEAP = False
 
@@ -61,15 +61,15 @@ def get_balances():
 
         salt 'my-minion' namecheap_users.get_balances
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.users.getBalances")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.users.getBalances")
 
-    response_xml = salt.utils.namecheap.get_request(opts)
+    response_xml = namecheap.get_request(url, opts)
 
     if response_xml is None:
         return {}
 
     balance_response = response_xml.getElementsByTagName("UserGetBalancesResult")[0]
-    return salt.utils.namecheap.atts_to_dict(balance_response)
+    return namecheap.atts_to_dict(balance_response)
 
 
 def check_balances(minimum=100):

@@ -28,10 +28,13 @@ file, or in the Pillar data.
 
 import logging
 
+from salt.exceptions import CommandExecutionError
+from salt.exceptions import SaltInvocationError
+
 CAN_USE_NAMECHEAP = True
 
 try:
-    import salt.utils.namecheap
+    from saltext.namecheap.utils import namecheap
 except ImportError:
     CAN_USE_NAMECHEAP = False
 
@@ -65,18 +68,16 @@ def reactivate(domain_name):
 
         salt 'my-minion' namecheap_domains.reactivate my-domain-name
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.reactivate")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.reactivate")
     opts["DomainName"] = domain_name
 
-    response_xml = salt.utils.namecheap.post_request(opts)
+    response_xml = namecheap.post_request(url, opts)
 
     if response_xml is None:
         return {}
 
-    domainreactivateresult = response_xml.getElementsByTagName(
-        "DomainReactivateResult"
-    )[0]
-    return salt.utils.namecheap.xml_to_dict(domainreactivateresult)
+    domainreactivateresult = response_xml.getElementsByTagName("DomainReactivateResult")[0]
+    return namecheap.xml_to_dict(domainreactivateresult)
 
 
 def renew(domain_name, years, promotion_code=None):
@@ -104,19 +105,19 @@ def renew(domain_name, years, promotion_code=None):
         salt 'my-minion' namecheap_domains.renew my-domain-name 5
     """
 
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.renew")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.renew")
     opts["DomainName"] = domain_name
     opts["Years"] = years
     if promotion_code is not None:
         opts["PromotionCode"] = promotion_code
 
-    response_xml = salt.utils.namecheap.post_request(opts)
+    response_xml = namecheap.post_request(url, opts)
 
     if response_xml is None:
         return {}
 
     domainrenewresult = response_xml.getElementsByTagName("DomainRenewResult")[0]
-    return salt.utils.namecheap.xml_to_dict(domainrenewresult)
+    return namecheap.xml_to_dict(domainrenewresult)
 
 
 def create(domain_name, years, **kwargs):
@@ -299,7 +300,7 @@ def create(domain_name, years, **kwargs):
         "TechStateProvince",
         "Years",
     ]
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.create")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.create")
     opts["DomainName"] = domain_name
     opts["Years"] = str(years)
 
@@ -357,22 +358,22 @@ def create(domain_name, years, **kwargs):
 
         if key == "IdnCode" and key not in idn_codes:
             log.error("Invalid IdnCode")
-            raise Exception("Invalid IdnCode")
+            raise CommandExecutionError("Invalid IdnCode")
 
         opts[key] = value
 
     for requiredkey in require_opts:
         if requiredkey not in opts:
             log.error("Missing required parameter '%s'", requiredkey)
-            raise Exception("Missing required parameter '{}'".format(requiredkey))
+            raise SaltInvocationError(f"Missing required parameter '{requiredkey}'")
 
-    response_xml = salt.utils.namecheap.post_request(opts)
+    response_xml = namecheap.post_request(url, opts)
 
     if response_xml is None:
         return {}
 
     domainresult = response_xml.getElementsByTagName("DomainCreateResult")[0]
-    return salt.utils.namecheap.atts_to_dict(domainresult)
+    return namecheap.atts_to_dict(domainresult)
 
 
 def check(*domains_to_check):
@@ -391,10 +392,10 @@ def check(*domains_to_check):
 
         salt 'my-minion' namecheap_domains.check domain-to-check
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.check")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.check")
     opts["DomainList"] = ",".join(domains_to_check)
 
-    response_xml = salt.utils.namecheap.get_request(opts)
+    response_xml = namecheap.get_request(url, opts)
 
     if response_xml is None:
         return {}
@@ -402,9 +403,9 @@ def check(*domains_to_check):
     domains_checked = {}
     for result in response_xml.getElementsByTagName("DomainCheckResult"):
         available = result.getAttribute("Available")
-        domains_checked[
-            result.getAttribute("Domain").lower()
-        ] = salt.utils.namecheap.string_to_value(available)
+        domains_checked[result.getAttribute("Domain").lower()] = namecheap.string_to_value(
+            available
+        )
 
     return domains_checked
 
@@ -424,17 +425,17 @@ def get_info(domain_name):
 
         salt 'my-minion' namecheap_domains.get_info my-domain-name
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.getinfo")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.getinfo")
     opts["DomainName"] = domain_name
 
-    response_xml = salt.utils.namecheap.get_request(opts)
+    response_xml = namecheap.get_request(url, opts)
 
     if response_xml is None:
         return []
 
     domaingetinforesult = response_xml.getElementsByTagName("DomainGetInfoResult")[0]
 
-    return salt.utils.namecheap.xml_to_dict(domaingetinforesult)
+    return namecheap.xml_to_dict(domaingetinforesult)
 
 
 def get_tld_list():
@@ -447,10 +448,8 @@ def get_tld_list():
 
         salt 'my-minion' namecheap_domains.get_tld_list
     """
-
-    response_xml = salt.utils.namecheap.get_request(
-        salt.utils.namecheap.get_opts("namecheap.domains.gettldlist")
-    )
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.gettldlist")
+    response_xml = namecheap.get_request(url, opts)
 
     if response_xml is None:
         return []
@@ -459,12 +458,12 @@ def get_tld_list():
     tlds = []
 
     for e in tldresult.getElementsByTagName("Tld"):
-        tld = salt.utils.namecheap.atts_to_dict(e)
+        tld = namecheap.atts_to_dict(e)
         tld["data"] = e.firstChild.data
         categories = []
         subcategories = e.getElementsByTagName("Categories")[0]
         for c in subcategories.getElementsByTagName("TldCategory"):
-            categories.append(salt.utils.namecheap.atts_to_dict(c))
+            categories.append(namecheap.atts_to_dict(c))
         tld["categories"] = categories
         tlds.append(tld)
 
@@ -499,12 +498,12 @@ def get_list(list_type=None, search_term=None, page=None, page_size=None, sort_b
 
         salt 'my-minion' namecheap_domains.get_list
     """
-    opts = salt.utils.namecheap.get_opts("namecheap.domains.getList")
+    opts, url = namecheap.get_opts(__salt__["config.option"], "namecheap.domains.getList")
 
     if list_type is not None:
         if list_type not in ["ALL", "EXPIRING", "EXPIRED"]:
             log.error("Invalid option for list_type")
-            raise Exception("Invalid option for list_type")
+            raise SaltInvocationError("Invalid option for list_type")
         opts["ListType"] = list_type
 
     if search_term is not None:
@@ -519,7 +518,7 @@ def get_list(list_type=None, search_term=None, page=None, page_size=None, sort_b
     if page_size is not None:
         if page_size > 100 or page_size < 10:
             log.error("Invalid option for page")
-            raise Exception("Invalid option for page")
+            raise SaltInvocationError("Invalid option for page")
         opts["PageSize"] = page_size
 
     if sort_by is not None:
@@ -532,10 +531,10 @@ def get_list(list_type=None, search_term=None, page=None, page_size=None, sort_b
             "CREATEDATE_DESC",
         ]:
             log.error("Invalid option for sort_by")
-            raise Exception("Invalid option for sort_by")
+            raise SaltInvocationError("Invalid option for sort_by")
         opts["SortBy"] = sort_by
 
-    response_xml = salt.utils.namecheap.get_request(opts)
+    response_xml = namecheap.get_request(url, opts)
 
     if response_xml is None:
         return []
@@ -544,6 +543,6 @@ def get_list(list_type=None, search_term=None, page=None, page_size=None, sort_b
 
     domains = []
     for d in domainresult.getElementsByTagName("Domain"):
-        domains.append(salt.utils.namecheap.atts_to_dict(d))
+        domains.append(namecheap.atts_to_dict(d))
 
     return domains

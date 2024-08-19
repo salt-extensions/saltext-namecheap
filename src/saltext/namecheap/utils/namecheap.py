@@ -15,11 +15,10 @@
 
 """
 
-
 import logging
 import xml.dom.minidom
 
-import salt.loader
+from salt.exceptions import CommandExecutionError
 
 try:
     import requests
@@ -31,29 +30,12 @@ except ImportError:
 # Get logging started
 log = logging.getLogger(__name__)
 
-__salt__ = None
 
-
-def __virtual__():
-    if not HAS_REQUESTS:
-        return (
-            False,
-            "Missing dependency: 'requests'. The namecheap utils module "
-            "cannot be loaded. ",
-        )
-    global __salt__
-    if not __salt__:
-        __salt__ = salt.loader.minion_mods(__opts__)
-    return True
-
-
-def post_request(opts):
-    namecheap_url = __salt__["config.option"]("namecheap.url")
+def post_request(namecheap_url, opts):
     return _handle_request(requests.post(namecheap_url, data=opts, timeout=45))
 
 
-def get_request(opts):
-    namecheap_url = __salt__["config.option"]("namecheap.url")
+def get_request(namecheap_url, opts):
     return _handle_request(requests.get(namecheap_url, params=opts, timeout=45))
 
 
@@ -62,7 +44,7 @@ def _handle_request(r):
 
     if r.status_code > 299:
         log.error(str(r))
-        raise Exception(str(r))
+        raise CommandExecutionError(str(r))
 
     response_xml = xml.dom.minidom.parseString(r.text)
     apiresponse = response_xml.getElementsByTagName("ApiResponse")[0]
@@ -75,7 +57,7 @@ def _handle_request(r):
         error = "".join(data)
         log.info(apiresponse)
         log.error(error)
-        raise Exception(error)
+        raise CommandExecutionError(error)
 
     return response_xml
 
@@ -92,10 +74,7 @@ def xml_to_dict(xml):
             return xml.firstChild.data
         else:
             return None
-    elif (
-        xml.childNodes.length == 1
-        and xml.childNodes[0].nodeType == xml.CDATA_SECTION_NODE
-    ):
+    elif xml.childNodes.length == 1 and xml.childNodes[0].nodeType == xml.CDATA_SECTION_NODE:
         return xml.childNodes[0].data
     else:
         for n in xml.childNodes:
@@ -153,11 +132,11 @@ def string_to_value(value):
     return result
 
 
-def get_opts(command):
+def get_opts(config_option, command):
     opts = {}
-    opts["ApiUser"] = __salt__["config.option"]("namecheap.name")
-    opts["UserName"] = __salt__["config.option"]("namecheap.user")
-    opts["ApiKey"] = __salt__["config.option"]("namecheap.key")
-    opts["ClientIp"] = __salt__["config.option"]("namecheap.client_ip")
+    opts["ApiUser"] = config_option("namecheap.name")
+    opts["UserName"] = config_option("namecheap.user")
+    opts["ApiKey"] = config_option("namecheap.key")
+    opts["ClientIp"] = config_option("namecheap.client_ip")
     opts["Command"] = command
-    return opts
+    return opts, config_option("namecheap.url")
