@@ -1,5 +1,5 @@
-Welcome to saltext-namecheap Documentation!
-===========================================
+Welcome to namecheap Documentation!
+===================================
 
 .. toctree::
   :maxdepth: 2

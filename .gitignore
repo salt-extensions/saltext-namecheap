@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # Ignore the setuptools_scm auto-generated version module
-src/saltext/saltext_namecheap/version.py
+src/saltext/namecheap/version.py
 
 # Ignore CI generated artifacts
 artifacts/

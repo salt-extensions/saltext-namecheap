@@ -36,7 +36,7 @@ ignore_errors = True
 
 [paths]
 source =
-  saltext/saltext_namecheap
-  src/saltext/saltext_namecheap
+  saltext/namecheap
+  src/saltext/namecheap
 testsuite =
   tests/

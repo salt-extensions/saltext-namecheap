@@ -25,7 +25,7 @@ repos:
         name: Check CLI examples on execution modules
         entry: python .pre-commit-hooks/check-cli-examples.py
         language: system
-        files: ^src/saltext/saltext_namecheap/modules/.*\.py$
+        files: ^src/saltext/namecheap/modules/.*\.py$
 
   - repo: local
     hooks:
@@ -42,7 +42,7 @@ repos:
       - id: salt-rewrite
         alias: rewrite-docstrings
         name: Salt extensions docstrings auto-fixes
-        files: ^src/saltext/saltext_namecheap/.*\.py$
+        files: ^src/saltext/namecheap/.*\.py$
         args: [--silent]
 
   - repo: https://github.com/s0undt3ch/salt-rewrite
@@ -63,7 +63,7 @@ repos:
         args: [
           --py36-plus
         ]
-        exclude: src/saltext/saltext_namecheap/version.py
+        exclude: src/saltext/namecheap/version.py
 
   - repo: https://github.com/asottile/reorder_python_imports
     rev: v2.6.0
@@ -72,14 +72,14 @@ repos:
         args: [
           --py3-plus,
         ]
-        exclude: src/saltext/saltext_namecheap/version.py
+        exclude: src/saltext/namecheap/version.py
 
   - repo: https://github.com/psf/black
     rev: 22.6.0
     hooks:
       - id: black
         args: [-l 100]
-        exclude: src/saltext/saltext_namecheap/version.py
+        exclude: src/saltext/namecheap/version.py
         additional_dependencies:
           - click<8.1.0
 
@@ -88,7 +88,7 @@ repos:
     hooks:
       - id: blacken-docs
         args: [--skip-errors]
-        files: ^(docs/.*\.rst|src/saltext/saltext_namecheap/.*\.py)$
+        files: ^(docs/.*\.rst|src/saltext/namecheap/.*\.py)$
         additional_dependencies:
           - black==22.6.0
           - click<8.1.0
@@ -102,7 +102,7 @@ repos:
         alias: bandit-salt
         name: Run bandit against the code base
         args: [--silent, -lll, --skip, B701]
-        exclude: src/saltext/saltext_namecheap/version.py
+        exclude: src/saltext/namecheap/version.py
   - repo: https://github.com/PyCQA/bandit
     rev: "1.7.0"
     hooks:
