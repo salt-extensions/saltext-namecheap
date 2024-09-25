@@ -57,35 +57,38 @@ def _handle_request(r):
     return response_xml
 
 
-def xml_to_dict(xml):
-    if xml.nodeType == xml.CDATA_SECTION_NODE:
-        return xml.data
-    result = atts_to_dict(xml)
-    if len([n for n in xml.childNodes if n.nodeType != xml.TEXT_NODE]) == 0:
+def xml_to_dict(xml_data):
+    if xml_data.nodeType == xml_data.CDATA_SECTION_NODE:
+        return xml_data.data
+    result = atts_to_dict(xml_data)
+    if len([n for n in xml_data.childNodes if n.nodeType != xml_data.TEXT_NODE]) == 0:
         if len(result) > 0:
-            if xml.firstChild is not None and len(xml.firstChild.data) > 0:
-                result["data"] = xml.firstChild.data
-        elif xml.firstChild is not None and len(xml.firstChild.data) > 0:
-            return xml.firstChild.data
+            if xml_data.firstChild is not None and len(xml_data.firstChild.data) > 0:
+                result["data"] = xml_data.firstChild.data
+        elif xml_data.firstChild is not None and len(xml_data.firstChild.data) > 0:
+            return xml_data.firstChild.data
         else:
             return None
-    elif xml.childNodes.length == 1 and xml.childNodes[0].nodeType == xml.CDATA_SECTION_NODE:
-        return xml.childNodes[0].data
+    elif (
+        xml_data.childNodes.length == 1
+        and xml_data.childNodes[0].nodeType == xml_data.CDATA_SECTION_NODE
+    ):
+        return xml_data.childNodes[0].data
     else:
-        for n in xml.childNodes:
-            if n.nodeType == xml.CDATA_SECTION_NODE:
+        for n in xml_data.childNodes:
+            if n.nodeType == xml_data.CDATA_SECTION_NODE:
 
-                if xml.tagName.lower() in result:
-                    val = result[xml.tagName.lower()]
+                if xml_data.tagName.lower() in result:
+                    val = result[xml_data.tagName.lower()]
                     if not isinstance(val, list):
                         temp = [val]
                         val = temp
                     val.append(n.data)
-                    result[xml.tagName.lower()] = val
+                    result[xml_data.tagName.lower()] = val
                 else:
-                    result[xml.tagName.lower()] = n.data
+                    result[xml_data.tagName.lower()] = n.data
 
-            elif n.nodeType != xml.TEXT_NODE:
+            elif n.nodeType != xml_data.TEXT_NODE:
 
                 if n.tagName.lower() in result:
                     val = result[n.tagName.lower()]
@@ -100,10 +103,10 @@ def xml_to_dict(xml):
     return result
 
 
-def atts_to_dict(xml):
+def atts_to_dict(xml_data):
     result = {}
-    if xml.attributes is not None:
-        for key, value in xml.attributes.items():
+    if xml_data.attributes is not None:
+        for key, value in xml_data.attributes.items():
             result[key.lower()] = string_to_value(value)
     return result
 
