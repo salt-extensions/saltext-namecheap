@@ -1,18 +1,18 @@
 """
- Namecheap Management library of common functions used by
- all the namecheap execution modules
+Namecheap Management library of common functions used by
+all the namecheap execution modules
 
- Installation Prerequisites
- --------------------------
+Installation Prerequisites
+--------------------------
 
- - This module uses the following python libraries to communicate to
-   the namecheap API:
+- This module uses the following python libraries to communicate to
+  the namecheap API:
 
-        * ``requests``
+       * ``requests``
 
-        .. code-block:: bash
+       .. code-block:: bash
 
-            pip install requests
+           pip install requests
 
 """
 
