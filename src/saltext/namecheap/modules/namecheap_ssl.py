@@ -109,7 +109,7 @@ def reissue(
     .. note::
         For other parameters which may be required, see here__.
 
-        .. __: https://www.namecheap.com/support/api/methods/ssl/reissue.aspx
+        .. __: https://www.namecheap.com/support/api/methods/ssl/reissue/
 
     CLI Example:
 
@@ -192,7 +192,7 @@ def activate(
     .. note::
         For other parameters which may be required, see here__.
 
-        .. __: https://www.namecheap.com/support/api/methods/ssl/activate.aspx
+        .. __: https://www.namecheap.com/support/api/methods/ssl/activate/
 
     CLI Example:
 
